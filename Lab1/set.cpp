@@ -376,7 +376,10 @@ Set<T>::Set ()
 template<typename T>
 Set<T>::Set (T n)
 {
-   //ADD CODE
+   init();
+   Node* newNode = new Node(n,tail,head);
+   head->next = newNode;
+   tail->prev = newNode;
 }
 
 
@@ -384,7 +387,15 @@ Set<T>::Set (T n)
 template<typename T>
 Set<T>::Set (T a[], int n)
 {
-    //ADD CODE
+    init();
+    Node* p = head;
+    for(int i = 0; i < n; i++)
+    {
+        Node* newNode = new Node(a[i],p->next,p);
+        p->next = newNode;
+        tail->prev = newNode;
+        p = newNode;
+    }
 }
 
 
@@ -392,7 +403,18 @@ Set<T>::Set (T a[], int n)
 template<typename T>
 Set<T>::Set (const Set& b)
 {
-    //ADD CODE
+    init();
+
+    Node* p = b.head->next;
+    Node* a = head;
+    while(p->next)
+    {
+        Node* newNode = new Node(p->value, a->next, a);
+        p = p->next;
+        a->next = newNode;
+        tail->prev = newNode;
+        a = newNode;
+    }
 }
 
 
@@ -401,6 +423,9 @@ template<typename T>
 Set<T>::~Set ()
 {
     //ADD CODE
+    clear();
+    delete head;
+    delete tail;
 }
 
 
@@ -408,8 +433,19 @@ Set<T>::~Set ()
 template<typename T>
 const Set<T>& Set<T>::operator=(const Set& b)
 {
-    //ADD CODE
-    return *this; //delete this code
+    clear();
+    Node* p = b.head->next;
+    Node* a = head;
+    while(p->next)
+    {
+        Node* newNode = new Node(p->value, a->next, a);
+        p = p->next;
+        a->next = newNode;
+        tail->prev = newNode;
+        a = newNode;
+    }
+
+    return *this;
 }
 
 
@@ -417,8 +453,10 @@ const Set<T>& Set<T>::operator=(const Set& b)
 template<typename T>
 bool Set<T>::is_empty () const
 {
-   //ADD CODE
-   return false; //delete this code
+    if(!head->next->next)
+        return true;
+
+    return false;
 }
 
 
@@ -426,8 +464,14 @@ bool Set<T>::is_empty () const
 template<typename T>
 bool Set<T>::is_member (T val) const
 {
-   //ADD CODE
-   return false; //delete this code
+   Node* p = head->next;
+   while(p->next)
+   {
+        if(p->value == val)
+            return true;
+        p = p->next;
+   }
+   return false;
 }
 
 
@@ -435,8 +479,16 @@ bool Set<T>::is_member (T val) const
 template<typename T>
 int Set<T>::cardinality() const
 {
-    //ADD CODE
-    return 0; //delete this code
+    int counter = 0;
+    if(is_empty())
+        return counter;
+    Node* p = head->next;
+    while(p->next)
+    {
+        counter++;
+        p = p->next;
+    }
+    return counter;
 }
 
 
@@ -445,6 +497,13 @@ template<typename T>
 void Set<T>::clear()
 {
     //ADD CODE
+    Node* p = head->next;
+    while(p->next)
+    {
+        Node* temp = p;
+        p = p->next;
+        erase(temp);
+    }
 }
 
 //Return true, if the set is a subset of b, otherwise false
@@ -495,7 +554,9 @@ template<typename T>
 Set<T>& Set<T>::erase(Node *p)
 {
     //ADD CODE
-    return *this; //delete this code
+    p->next->prev = p->prev;
+    p->prev->next = p->next;
+    delete p;
 }
 
 //Create an empty Set
@@ -503,6 +564,9 @@ template<typename T>
 void Set<T>::init()
 {
     //ADD CODE
+    head = new (nothrow) Node();
+    tail = new (nothrow) Node(0,nullptr,head);
+    head->next = tail;
 }
 
 
@@ -511,16 +575,47 @@ template<typename T>
 void Set<T>::print(ostream& os) const
 {
     //ADD CODE
+    Node* p = head->next;
+    os << "{ ";
+    while(p->next)
+    {
+        os << p->value << " ";
+        p = p->next;
+    }
+    os << "}";
 }
 
-
+//HÄR ÄR VIIIIIII!I!!!!!!!!!!!!!!!!!!!JAAAAAAAAAAHURRAAAAKAFFEEE
 //Set union
 //Return a new set with the elements in S1 or in S2 (without repeated elements)
 template<typename T>
 Set<T> Set<T>::_union(const Set& b) const
 {
-    //ADD CODE
-    return *this; //delete this code
+    Node* p = head->next;
+    Node* a = b.head->next;
+
+    while(a->next)
+    {
+        //p = head->next;
+        //Node* p = head->next;
+        while(p->next)
+        {
+            if (p->value == a->value)
+                break;
+
+            if (a->value < p->value || !p->next->next)
+            {
+                Node* newNode = new Node(a->value, p, p->prev);
+                p->prev->next = a;
+                p->prev = a;
+                p = p->next;
+                break;
+            }
+            p = p->next;
+        }
+        a = a->next;
+    }
+    return *this;
 }
 
 
