@@ -387,6 +387,7 @@ Set<T>::Set (T n)
 template<typename T>
 Set<T>::Set (T a[], int n)
 {
+    // (N*4) + 4 operations
     init();
     Node* p = head;
     for(int i = 0; i < n; i++)
@@ -422,7 +423,6 @@ Set<T>::Set (const Set& b)
 template<typename T>
 Set<T>::~Set ()
 {
-    //ADD CODE
     clear();
     delete head;
     delete tail;
@@ -433,7 +433,8 @@ Set<T>::~Set ()
 template<typename T>
 const Set<T>& Set<T>::operator=(const Set& b)
 {
-    clear();
+    //3+(5*size(set1)) + 2 + (5*size(set2))
+    clear(); //3 + 5*storlek på set
     Node* p = b.head->next;
     Node* a = head;
     while(p->next)
@@ -479,6 +480,7 @@ bool Set<T>::is_member (T val) const
 template<typename T>
 int Set<T>::cardinality() const
 {
+    //1 + (2*size(set))
     int counter = 0;
     if(is_empty())
         return counter;
@@ -511,8 +513,17 @@ void Set<T>::clear()
 template<typename T>
 bool Set<T>::operator<=(const Set& b) const
 {
-    //ADD CODE
-    return false; //delete this code
+    //1 + (2*size(set))
+    Node* p = head->next;
+
+    while(p->next)
+    {
+        if(!b.is_member(p->value))
+            return false;
+
+        p = p->next;
+    }
+    return true; //delete this code
 }
 
 
@@ -521,8 +532,21 @@ bool Set<T>::operator<=(const Set& b) const
 template<typename T>
 bool Set<T>::operator==(const Set& b) const
 {
-    //ADD CODE
-    return false; //delete this code
+    Node* p = head->next;
+    Node* a = b.head->next;
+
+    while(p->next || a->next)
+    {
+        if(p->value != a->value)
+            return false;
+
+        p = p->next;
+        a = a->next;
+    }
+    if (p->next || a->next)
+        return false;
+
+    return true; //delete this code
 }
 
 
@@ -531,8 +555,20 @@ bool Set<T>::operator==(const Set& b) const
 template<typename T>
 bool Set<T>::operator<(const Set& b) const
 {
-    //ADD CODE
-    return false; //delete this code
+    Node* p = head->next;
+
+    while(p->next)
+    {
+        if(!b.is_member(p->value))
+            return false;
+
+        p = p->next;
+    }
+
+    if(cardinality() == b.cardinality())
+        return false;
+
+    return true; //delete this code
 }
 
 
@@ -545,6 +581,9 @@ template<typename T>
 Set<T>& Set<T>::insert(Node *p, T val)
 {
     //ADD CODE
+    Node* newNode = new Node(val, p, p->prev);
+    p->prev = p->prev->next = newNode;
+    //????????
     return *this; //delete this code
 }
 
@@ -553,7 +592,6 @@ Set<T>& Set<T>::insert(Node *p, T val)
 template<typename T>
 Set<T>& Set<T>::erase(Node *p)
 {
-    //ADD CODE
     p->next->prev = p->prev;
     p->prev->next = p->next;
     delete p;
@@ -585,37 +623,46 @@ void Set<T>::print(ostream& os) const
     os << "}";
 }
 
-//HÄR ÄR VIIIIIII!I!!!!!!!!!!!!!!!!!!!JAAAAAAAAAAHURRAAAAKAFFEEE
 //Set union
 //Return a new set with the elements in S1 or in S2 (without repeated elements)
 template<typename T>
 Set<T> Set<T>::_union(const Set& b) const
 {
+    //4 +
     Node* p = head->next;
     Node* a = b.head->next;
 
+    Set w(*this);
+    Node* v = w.head;
+
     while(a->next)
     {
-        //p = head->next;
-        //Node* p = head->next;
-        while(p->next)
+        while(v->next)
         {
-            if (p->value == a->value)
+            if (v->value == a->value)
                 break;
 
-            if (a->value < p->value || !p->next->next)
+            if (a->value < v->value)
             {
-                Node* newNode = new Node(a->value, p, p->prev);
-                p->prev->next = a;
-                p->prev = a;
-                p = p->next;
+                Node* newNode = new Node(a->value, v, v->prev);
+                v->prev->next = newNode;
+                v->prev = newNode;
                 break;
             }
-            p = p->next;
+
+            if(!v->next->next)
+            {
+                v = v->next;
+                Node* newNode = new Node(a->value, v, v->prev);
+                v->prev->next = newNode;
+                v->prev = newNode;
+                break;
+            }
+            v = v->next;
         }
         a = a->next;
     }
-    return *this;
+    return w;
 }
 
 
@@ -624,8 +671,23 @@ Set<T> Set<T>::_union(const Set& b) const
 template<typename T>
 Set<T> Set<T>::_intersection(const Set& b) const
 {
-    //ADD CODE
-    return *this; //delete this code
+    Node* p = head->next;
+    Node* a = b.head->next;
+
+    Set w;
+    Node* v = w.head->next;
+
+    while(p->next)
+    {
+        if(b.is_member(p->value))
+        {
+            Node* newNode = new Node(p->value, v, v->prev);
+            v->prev->next = newNode;
+            v->prev = newNode;
+        }
+        p = p->next;
+    }
+    return w;
 }
 
 
@@ -634,8 +696,23 @@ Set<T> Set<T>::_intersection(const Set& b) const
 template<typename T>
 Set<T> Set<T>::_difference(const Set& b) const
 {
-    //ADD CODE
-    return *this; //delete this code
+    Node* p = head->next;
+    Node* a = b.head->next;
+
+    Set w;
+    Node* v = w.head->next;
+
+    while(p->next)
+    {
+        if(!b.is_member(p->value))
+        {
+            Node* newNode = new Node(p->value, v, v->prev);
+            v->prev->next = newNode;
+            v->prev = newNode;
+        }
+        p = p->next;
+    }
+    return w;
 }
 
 
