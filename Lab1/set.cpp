@@ -26,333 +26,333 @@ using namespace std;
 template<typename T>
 class Set
 {
-    private:
+private:
 
-        /** \brief Class Node
+    /** \brief Class Node
+     *
+     * This class represents an internal node of a doubly linked list storing objects of type T
+     * \param T is the type of the object (element) stored in a Node
+     * \note All members of class Node are public
+     * but only class Set can access them, since Node is declared in the private part of class Set
+     *
+     */
+
+    class Node
+    {
+    public:
+        /** \brief Constructor
          *
-         * This class represents an internal node of a doubly linked list storing objects of type T
-         * \param T is the type of the object (element) stored in a Node
-         * \note All members of class Node are public
-         * but only class Set can access them, since Node is declared in the private part of class Set
+         * \param nodeVal an object of type T whose copy will be stored in the Node
+         * \param nextPtr a pointer to the next Node in the list
+         * \param prevPtr a pointer to the previous Node in the list
+         * \pre Type T should support the following operations:
+         *  default constructor T(), operator<<, operator<=,
          *
          */
-
-        class Node
-        {
-            public:
-           /** \brief Constructor
-            *
-            * \param nodeVal an object of type T whose copy will be stored in the Node
-            * \param nextPtr a pointer to the next Node in the list
-            * \param prevPtr a pointer to the previous Node in the list
-            * \pre Type T should support the following operations:
-            *  default constructor T(), operator<<, operator<=,
-            *
-            */
-            //Constructor
-           Node (T nodeVal = T(), Node* nextPtr = nullptr, Node* prevPtr = nullptr)
+        //Constructor
+        Node (T nodeVal = T(), Node* nextPtr = nullptr, Node* prevPtr = nullptr)
             : value (nodeVal), next (nextPtr), prev(prevPtr)
-            {  };
+        {  };
 
-           //Data members
-           T value;    /**< Object (element) stored in the Node */
-           Node* next; /**< Pointer to the next Node */
-           Node* prev; /**< Pointer to the previous Node */
-        };
-
-
-    public:
-
-       /** \brief Default constructor
-        *
-        * Create an empty Set
-        *
-        */
-        //Default constructor
-       Set ();
+        //Data members
+        T value;    /**< Object (element) stored in the Node */
+        Node* next; /**< Pointer to the next Node */
+        Node* prev; /**< Pointer to the previous Node */
+    };
 
 
-       /** \brief Conversion constructor
-        *
-        * Convert an object val into a singleton {val}
-        * \param val an object of type T
-        *
-        */
-        //Conversion constructor
-       Set (T val);
+public:
+
+    /** \brief Default constructor
+     *
+     * Create an empty Set
+     *
+     */
+    //Default constructor
+    Set ();
 
 
-       /** \brief Constructor to create a Set from an array of objects
-        *
-        * Create a Set with (a copy of) all objects in array a
-        * \param a sorted array of objects of type T
-        * \param n number of objects in array a
-        *
-        */
-        //Constructor to create a Set from a sorted array
-       Set (T a[], int n);
+    /** \brief Conversion constructor
+     *
+     * Convert an object val into a singleton {val}
+     * \param val an object of type T
+     *
+     */
+    //Conversion constructor
+    Set (T val);
 
 
-       /** \brief Copy constructor
-        *
-        * Create a new Set as a copy of Set b
-        * \param b Set to be copied
-        * \note This function does not modify Set b in any way
-        *
-        */
-        //Copy constructor
-       Set (const Set& b);
+    /** \brief Constructor to create a Set from an array of objects
+     *
+     * Create a Set with (a copy of) all objects in array a
+     * \param a sorted array of objects of type T
+     * \param n number of objects in array a
+     *
+     */
+    //Constructor to create a Set from a sorted array
+    Set (T a[], int n);
 
 
-       /** \brief Destructor
-        *
-        * Deallocate all memory (Nodes) allocated by the constructor
-        *
-        */
-        //Destructor
-       ~Set ();
+    /** \brief Copy constructor
+     *
+     * Create a new Set as a copy of Set b
+     * \param b Set to be copied
+     * \note This function does not modify Set b in any way
+     *
+     */
+    //Copy constructor
+    Set (const Set& b);
 
 
-       /** \brief Assignment operator
-        *
-        * Assigns new contents to the Set, replacing its current content
-        * \param b Set to be copied into Set *this
-        * \note This function does not modify Set b in any way
-        * \return *this
-        *
-        */
-        //Assignment operator
-       const Set& operator=(const Set& b);
+    /** \brief Destructor
+     *
+     * Deallocate all memory (Nodes) allocated by the constructor
+     *
+     */
+    //Destructor
+    ~Set ();
 
 
-       /** \brief Test whether the Set is empty
-        *
-        * \note This function does not modify the Set in any way
-        * \return true if the set is empty, otherwise false
-        *
-        */
-        //Test whether a set is empty
-       bool is_empty () const;
+    /** \brief Assignment operator
+     *
+     * Assigns new contents to the Set, replacing its current content
+     * \param b Set to be copied into Set *this
+     * \note This function does not modify Set b in any way
+     * \return *this
+     *
+     */
+    //Assignment operator
+    const Set& operator=(const Set& b);
 
 
-       /** \brief Count the number of objects stored in the Set
-        *
-        * \note This function does not modify the Set in any way
-        * \return An int larger or equal to zero
-        *
-        */
-        //Return number of elements in the set
-       int cardinality() const;
+    /** \brief Test whether the Set is empty
+     *
+     * \note This function does not modify the Set in any way
+     * \return true if the set is empty, otherwise false
+     *
+     */
+    //Test whether a set is empty
+    bool is_empty () const;
 
 
-       /** \brief Test whether an object belongs to the Set
-        *
-        * \param val an object of type T to be searched for
-        * \note This function does not modify the Set in any way
-        * \return true if val belongs to the set, otherwise false
-        *
-        */
-        //Test set membership
-       bool is_member (T val) const;
+    /** \brief Count the number of objects stored in the Set
+     *
+     * \note This function does not modify the Set in any way
+     * \return An int larger or equal to zero
+     *
+     */
+    //Return number of elements in the set
+    int cardinality() const;
 
 
-        /** \brief Remove all elements from the Set
-        *
-        * Transform the Set into an empty set
-        * \return None
-        *
-        */
-        //Make the set empty
-       void clear();
+    /** \brief Test whether an object belongs to the Set
+     *
+     * \param val an object of type T to be searched for
+     * \note This function does not modify the Set in any way
+     * \return true if val belongs to the set, otherwise false
+     *
+     */
+    //Test set membership
+    bool is_member (T val) const;
 
 
-       /** \brief Test whether *this is a subset of Set b
-        *
-        * a <= b iff every member of a is a member of b
-        * \param b a Set
-        * \note This function does not modify *this nor b in any way
-        * \return true, if *this is a subset of b, otherwise false
-        *
-        */
-        //Return true, if the set is a subset of b, otherwise false
-        //a <= b iff every member of a is a member of b
-       bool operator<=(const Set& b) const;
+    /** \brief Remove all elements from the Set
+    *
+    * Transform the Set into an empty set
+    * \return None
+    *
+    */
+    //Make the set empty
+    void clear();
 
 
-       /** \brief Test whether *this and b represent the same set
-        *
-        * a == b, iff a <= b but not b <= a
-        * \param b a Set
-        * \note This function does not modify *this nor b in any way
-        * \return true, if *this stores the same elements as Set b, otherwise false
-        *
-        */
-        //Return true, if the set is equal to set b
-        //a == b, iff a <= b but not b <= a
-       bool operator==(const Set& b) const;
+    /** \brief Test whether *this is a subset of Set b
+     *
+     * a <= b iff every member of a is a member of b
+     * \param b a Set
+     * \note This function does not modify *this nor b in any way
+     * \return true, if *this is a subset of b, otherwise false
+     *
+     */
+    //Return true, if the set is a subset of b, otherwise false
+    //a <= b iff every member of a is a member of b
+    bool operator<=(const Set& b) const;
 
 
-       /** \brief Test whether *this is a strict subset of Set b
-        *
-        * a < b iff a <= b but not b <= a
-        * \param b a Set
-        * \note This function does not modify *this nor b in any way
-        * \return true, if *this is a strict subset of b, otherwise false
-        *
-        */
-        //Return true, if the set is a strict subset of S, otherwise false
-        //a < b iff a <= b but not b <= a
-       bool operator<(const Set& b) const;
+    /** \brief Test whether *this and b represent the same set
+     *
+     * a == b, iff a <= b but not b <= a
+     * \param b a Set
+     * \note This function does not modify *this nor b in any way
+     * \return true, if *this stores the same elements as Set b, otherwise false
+     *
+     */
+    //Return true, if the set is equal to set b
+    //a == b, iff a <= b but not b <= a
+    bool operator==(const Set& b) const;
 
 
-    private:
-       Node *head;  /**< Pointer to the dummy header Node */
-       Node *tail;  /**< Pointer to the dummy tail Node */
-       int counter; /**< Count number of elements in the Set */
-
-       //Private member functions
-
-       /** \brief Insert a new Node storing val before the Node pointed by p
-        *
-        * \param p pointer to a Node
-        * \param val value to be inserted  before position p
-        * \return *this
-        *
-        */
-        //Insert a new Node storing val before the Node pointed by p
-       Set& insert(Node *p, T val);
+    /** \brief Test whether *this is a strict subset of Set b
+     *
+     * a < b iff a <= b but not b <= a
+     * \param b a Set
+     * \note This function does not modify *this nor b in any way
+     * \return true, if *this is a strict subset of b, otherwise false
+     *
+     */
+    //Return true, if the set is a strict subset of S, otherwise false
+    //a < b iff a <= b but not b <= a
+    bool operator<(const Set& b) const;
 
 
-        /** \brief Remove the Node pointed by p
-        *
-        * \param p pointer to a Node
-        * \return *this
-        *
-        */
-        //Remove the Node pointed by p
-       Set& erase(Node *p);
+private:
+    Node *head;  /**< Pointer to the dummy header Node */
+    Node *tail;  /**< Pointer to the dummy tail Node */
+    int counter; /**< Count number of elements in the Set */
+
+    //Private member functions
+
+    /** \brief Insert a new Node storing val before the Node pointed by p
+     *
+     * \param p pointer to a Node
+     * \param val value to be inserted  before position p
+     * \return *this
+     *
+     */
+    //Insert a new Node storing val before the Node pointed by p
+    Set& insert(Node *p, T val);
 
 
-        /** \brief Initialize the Set to an empty Set
-        *
-        * \return None
-        *
-        */
-        //Initialize the Set to an empty Set
-        void init();
+    /** \brief Remove the Node pointed by p
+    *
+    * \param p pointer to a Node
+    * \return *this
+    *
+    */
+    //Remove the Node pointed by p
+    Set& erase(Node *p);
 
 
-        /** \brief Display the Set to ostream os
-        *
-        * \note This function does not modify *this in any way
-        * \return None
-        *
-        */
-        //Display the Set to ostream os
-        void print(ostream& os) const;
+    /** \brief Initialize the Set to an empty Set
+    *
+    * \return None
+    *
+    */
+    //Initialize the Set to an empty Set
+    void init();
 
 
-        /** \brief Set union of *this with Set S
-        *
-        * \param S a Set
-        * \note This function does not modify *this nor S in any way
-        * \return A new Set representing the union of *this with Set S
-        *
-        */
-        //Return a new set with the elements in S1 or in S2 (without repeated elements)
-        Set _union(const Set& S) const;
+    /** \brief Display the Set to ostream os
+    *
+    * \note This function does not modify *this in any way
+    * \return None
+    *
+    */
+    //Display the Set to ostream os
+    void print(ostream& os) const;
 
 
-        /** \brief Set intersection of *this with Set S
-        *
-        * \param S a Set
-        * \note This function does not modify *this nor S in any way
-        * \return A new Set representing the intersection of *this with Set S
-        *
-        */
-        //Return a new set with the elements in both sets S1 and S2
-        Set _intersection(const Set& S) const;
+    /** \brief Set union of *this with Set S
+    *
+    * \param S a Set
+    * \note This function does not modify *this nor S in any way
+    * \return A new Set representing the union of *this with Set S
+    *
+    */
+    //Return a new set with the elements in S1 or in S2 (without repeated elements)
+    Set _union(const Set& S) const;
 
 
-        /** \brief Set difference of *this with Set S
-        *
-        * \param S a Set
-        * \note This function does not modify *this nor S in any way
-        * \return A new Set representing the difference of *this with Set S
-        *
-        */
-        //Return a new set with the elements in set S1 that do not belong to set S2
-        Set _difference(const Set& S) const;
+    /** \brief Set intersection of *this with Set S
+    *
+    * \param S a Set
+    * \note This function does not modify *this nor S in any way
+    * \return A new Set representing the intersection of *this with Set S
+    *
+    */
+    //Return a new set with the elements in both sets S1 and S2
+    Set _intersection(const Set& S) const;
+
+
+    /** \brief Set difference of *this with Set S
+    *
+    * \param S a Set
+    * \note This function does not modify *this nor S in any way
+    * \return A new Set representing the difference of *this with Set S
+    *
+    */
+    //Return a new set with the elements in set S1 that do not belong to set S2
+    Set _difference(const Set& S) const;
 
 
 
-       //overloaded operators: union, intersection, difference, operator<<
+    //overloaded operators: union, intersection, difference, operator<<
 
 
-       /** \brief Overloaded operator<<
-        *
-        * \param os output stream
-        * \param b Set to be displayed
-        * \return parameter os
-        *
-        */
-         friend ostream& operator<< (ostream& os, const Set<T>& b)
-         {
-             if (b.is_empty ())
-                os << "Set is empty!" << endl;
-             else
-             {
-                b.print(os); //call the private function Set<T>::print
-             }
-
-            return os;
-         }
-
-
-       /** \brief Overloaded operator+: to represent Set union S1+S2
-        *
-        * S1+S2 is the Set of elements in Set S1 or in Set S2 (without repeated elements)
-        * \param S1 a Set
-        * \param S2 a Set
-        * \note This function does not modify S1 nor S2 in any way
-        * \return A new Set representing the union of S1 with S2, S1+S2
-        *
-        */
-        friend Set<T> operator+ (const Set<T>& S1, const Set<T>& S2)
+    /** \brief Overloaded operator<<
+     *
+     * \param os output stream
+     * \param b Set to be displayed
+     * \return parameter os
+     *
+     */
+    friend ostream& operator<< (ostream& os, const Set<T>& b)
+    {
+        if (b.is_empty ())
+            os << "Set is empty!" << endl;
+        else
         {
-            return S1._union(S2); //call the private function Set<T>::_union
-        };
-
-
-
-       /** \brief Overloaded operator*: to represent Set intersection S1*S2
-        *
-        * S1*S2 is the Set of elements in both Sets S1 and set S2
-        * \param S1 a Set
-        * \param S2 a Set
-        * \note This function does not modify S1 nor S2 in any way
-        * \return A new Set representing the intersection of S1 with S2, S1*S2
-        *
-        */
-        friend Set<T> operator* (const Set<T>& S1, const Set<T>& S2)
-        {
-            return S1._intersection(S2); //call the private function Set<T>::_intersection
-        };
-
-
-       /** \brief Overloaded operator-: to represent Set difference S1-S2
-        *
-        * S1-S2 is the Set of elements in Set S1 that do not belong to Set S2
-        * \param S1 a Set
-        * \param S2 a Set
-        * \note This function does not modify S1 nor S2 in any way
-        * \return A new Set representing the set difference S1-S2
-        *
-        */
-        friend Set<T> operator- (const Set<T>& S1, const Set<T>& S2)
-        {
-           return S1._difference(S2); //call the private function Set<T>::_difference
+            b.print(os); //call the private function Set<T>::print
         }
+
+        return os;
+    }
+
+
+    /** \brief Overloaded operator+: to represent Set union S1+S2
+     *
+     * S1+S2 is the Set of elements in Set S1 or in Set S2 (without repeated elements)
+     * \param S1 a Set
+     * \param S2 a Set
+     * \note This function does not modify S1 nor S2 in any way
+     * \return A new Set representing the union of S1 with S2, S1+S2
+     *
+     */
+    friend Set<T> operator+ (const Set<T>& S1, const Set<T>& S2)
+    {
+        return S1._union(S2); //call the private function Set<T>::_union
+    };
+
+
+
+    /** \brief Overloaded operator*: to represent Set intersection S1*S2
+     *
+     * S1*S2 is the Set of elements in both Sets S1 and set S2
+     * \param S1 a Set
+     * \param S2 a Set
+     * \note This function does not modify S1 nor S2 in any way
+     * \return A new Set representing the intersection of S1 with S2, S1*S2
+     *
+     */
+    friend Set<T> operator* (const Set<T>& S1, const Set<T>& S2)
+    {
+        return S1._intersection(S2); //call the private function Set<T>::_intersection
+    };
+
+
+    /** \brief Overloaded operator-: to represent Set difference S1-S2
+     *
+     * S1-S2 is the Set of elements in Set S1 that do not belong to Set S2
+     * \param S1 a Set
+     * \param S2 a Set
+     * \note This function does not modify S1 nor S2 in any way
+     * \return A new Set representing the set difference S1-S2
+     *
+     */
+    friend Set<T> operator- (const Set<T>& S1, const Set<T>& S2)
+    {
+        return S1._difference(S2); //call the private function Set<T>::_difference
+    }
 
 
 };
@@ -376,10 +376,10 @@ Set<T>::Set ()
 template<typename T>
 Set<T>::Set (T n)
 {
-   init();
-   Node* newNode = new Node(n,tail,head);
-   head->next = newNode;
-   tail->prev = newNode;
+    init();
+    Node* newNode = new Node(n,tail,head);
+    head->next = newNode;
+    tail->prev = newNode;
 }
 
 
@@ -389,14 +389,8 @@ Set<T>::Set (T a[], int n)
 {
     // (N*4) + 4 operations
     init();
-    Node* p = head;
     for(int i = 0; i < n; i++)
-    {
-        Node* newNode = new Node(a[i],p->next,p);
-        p->next = newNode;
-        tail->prev = newNode;
-        p = newNode;
-    }
+        insert(tail, a[i]);
 }
 
 
@@ -407,14 +401,11 @@ Set<T>::Set (const Set& b)
     init();
 
     Node* p = b.head->next;
-    Node* a = head;
+    Node* a = tail;
     while(p->next)
     {
-        Node* newNode = new Node(p->value, a->next, a);
+        insert(a, p->value);
         p = p->next;
-        a->next = newNode;
-        tail->prev = newNode;
-        a = newNode;
     }
 }
 
@@ -434,17 +425,23 @@ template<typename T>
 const Set<T>& Set<T>::operator=(const Set& b)
 {
     //3+(5*size(set1)) + 2 + (5*size(set2))
-    clear(); //3 + 5*storlek på set
-    Node* p = b.head->next;
-    Node* a = head;
-    while(p->next)
+
+    if (this != &b)
     {
-        Node* newNode = new Node(p->value, a->next, a);
-        p = p->next;
-        a->next = newNode;
-        tail->prev = newNode;
-        a = newNode;
+        clear(); //3 + 5*storlek på set
+        Node* p = b.head->next;
+        Node* a = head;
+        while(p->next)
+        {
+            Node* newNode = new Node(p->value, a->next, a);
+            p = p->next;
+            a->next = newNode;
+            tail->prev = newNode;
+            a = newNode;
+        }
+
     }
+
 
     return *this;
 }
@@ -465,14 +462,14 @@ bool Set<T>::is_empty () const
 template<typename T>
 bool Set<T>::is_member (T val) const
 {
-   Node* p = head->next;
-   while(p->next)
-   {
+    Node* p = head->next;
+    while(p->next)
+    {
         if(p->value == val)
             return true;
         p = p->next;
-   }
-   return false;
+    }
+    return false;
 }
 
 
@@ -515,13 +512,20 @@ bool Set<T>::operator<=(const Set& b) const
 {
     //1 + (2*size(set))
     Node* p = head->next;
+    Node* a = b.head->next;
 
-    while(p->next)
+    while(p->next && a->next)
     {
-        if(!b.is_member(p->value))
-            return false;
+        if(p->value == a->value)
+        {
+            p = p->next;
+            a = a->next;
+        }
+        else if(a->value < p->value)
+            a = a->next;
 
-        p = p->next;
+        else if(a->value > p->value)
+            return false;
     }
     return true; //delete this code
 }
@@ -535,7 +539,7 @@ bool Set<T>::operator==(const Set& b) const
     Node* p = head->next;
     Node* a = b.head->next;
 
-    while(p->next || a->next)
+    while(p->next && a->next)
     {
         if(p->value != a->value)
             return false;
@@ -556,19 +560,26 @@ template<typename T>
 bool Set<T>::operator<(const Set& b) const
 {
     Node* p = head->next;
+    Node* a = b.head->next;
 
-    while(p->next)
+    while(p->next && a->next)
     {
-        if(!b.is_member(p->value))
-            return false;
+        if(p->value == a->value)
+        {
+            p = p->next;
+            a = a->next;
+        }
+        else if(a->value < p->value)
+            a = a->next;
 
-        p = p->next;
+        else if(a->value > p->value)
+            return false;
     }
 
     if(cardinality() == b.cardinality())
         return false;
 
-    return true; //delete this code
+    return true;
 }
 
 
@@ -580,10 +591,9 @@ bool Set<T>::operator<(const Set& b) const
 template<typename T>
 Set<T>& Set<T>::insert(Node *p, T val)
 {
-    //ADD CODE
     Node* newNode = new Node(val, p, p->prev);
-    p->prev = p->prev->next = newNode;
-    //????????
+    p->prev->next = newNode;
+    p->prev = newNode;
     return *this; //delete this code
 }
 
@@ -601,9 +611,9 @@ Set<T>& Set<T>::erase(Node *p)
 template<typename T>
 void Set<T>::init()
 {
-    //ADD CODE
-    head = new (nothrow) Node();
-    tail = new (nothrow) Node(0,nullptr,head);
+    head = new Node();
+    tail = new Node();
+    tail->prev = head;
     head->next = tail;
 }
 
@@ -612,7 +622,6 @@ void Set<T>::init()
 template<typename T>
 void Set<T>::print(ostream& os) const
 {
-    //ADD CODE
     Node* p = head->next;
     os << "{ ";
     while(p->next)
@@ -628,38 +637,35 @@ void Set<T>::print(ostream& os) const
 template<typename T>
 Set<T> Set<T>::_union(const Set& b) const
 {
-    //4 +
-    Node* p = head->next;
+    Set w(*this);
+    Node* v = w.head->next;
     Node* a = b.head->next;
 
-    Set w(*this);
-    Node* v = w.head;
+    while(a->next && v->next)
+    {
+        if(a->value == v->value)
+        {
+            a = a->next;
+            v = v->next;
+        }
+        else if(a->value < v->value)
+        {
+            Node* newNode = new Node(a->value, v, v->prev);
+            v->prev->next = newNode;
+            v->prev = newNode;
+            a = a->next;
+        }
+        else if(a->value > v->value)
+        {
+            v = v->next;
+        }
+    }
 
     while(a->next)
     {
-        while(v->next)
-        {
-            if (v->value == a->value)
-                break;
-
-            if (a->value < v->value)
-            {
-                Node* newNode = new Node(a->value, v, v->prev);
-                v->prev->next = newNode;
-                v->prev = newNode;
-                break;
-            }
-
-            if(!v->next->next)
-            {
-                v = v->next;
-                Node* newNode = new Node(a->value, v, v->prev);
-                v->prev->next = newNode;
-                v->prev = newNode;
-                break;
-            }
-            v = v->next;
-        }
+        Node* newNode = new Node(a->value, v, v->prev);
+        v->prev->next = newNode;
+        v->prev = newNode;
         a = a->next;
     }
     return w;
@@ -677,15 +683,23 @@ Set<T> Set<T>::_intersection(const Set& b) const
     Set w;
     Node* v = w.head->next;
 
-    while(p->next)
+    while(p->next && a->next)
     {
-        if(b.is_member(p->value))
+        if(p->value == a->value)
         {
-            Node* newNode = new Node(p->value, v, v->prev);
+            Node* newNode = new Node(a->value, v, v->prev);
             v->prev->next = newNode;
             v->prev = newNode;
+
+            a = a->next;
+            p = p->next;
         }
-        p = p->next;
+
+        else if(a->value < p->value)
+            a = a->next;
+
+        else if(a->value > p->value)
+            p = p->next;
     }
     return w;
 }
@@ -696,25 +710,30 @@ Set<T> Set<T>::_intersection(const Set& b) const
 template<typename T>
 Set<T> Set<T>::_difference(const Set& b) const
 {
-    Node* p = head->next;
+    Set w(*this);
+    Node* v = w.head->next;
     Node* a = b.head->next;
 
-    Set w;
-    Node* v = w.head->next;
-
-    while(p->next)
+    while(v->next && a->next)
     {
-        if(!b.is_member(p->value))
+        if(a->value == v->value)
         {
-            Node* newNode = new Node(p->value, v, v->prev);
-            v->prev->next = newNode;
-            v->prev = newNode;
+            Node* temp = v;
+            v->next->prev = v->prev;
+            v->prev->next = v->next;
+            v = v->next;
+            a = a->next;
+            delete temp;
         }
-        p = p->next;
+
+        else if(a->value < v->value)
+            a = a->next;
+
+        else if(a->value > v->value)
+            v = v->next;
     }
     return w;
 }
-
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
