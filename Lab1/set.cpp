@@ -377,9 +377,7 @@ template<typename T>
 Set<T>::Set (T n)
 {
    init();
-   Node* newNode = new Node(n,tail,head);
-   head->next = newNode;
-   tail->prev = newNode;
+   this->insert(tail, n);
 }
 
 
@@ -601,9 +599,9 @@ Set<T>& Set<T>::erase(Node *p)
 template<typename T>
 void Set<T>::init()
 {
-    //ADD CODE
-    head = new (nothrow) Node();
-    tail = new (nothrow) Node(0,nullptr,head);
+    head = new Node();
+    tail = new Node();
+    tail->prev = head;
     head->next = tail;
 }
 
@@ -612,7 +610,6 @@ void Set<T>::init()
 template<typename T>
 void Set<T>::print(ostream& os) const
 {
-    //ADD CODE
     Node* p = head->next;
     os << "{ ";
     while(p->next)
