@@ -39,7 +39,7 @@ int nextPrime( int n )
 HashTable::HashTable(int table_size, HASH f)
     : size(nextPrime(table_size)), h(f), nItems(0)
 {
-    hTable = nullptr; //to be deleted
+    hTable = new Item*[size];
 }
 
 
@@ -47,7 +47,14 @@ HashTable::HashTable(int table_size, HASH f)
 // IMPLEMENT
 HashTable::~HashTable()
 {
+    Item* temp;
 
+    for(int i = 0; i < size; i++)
+    {
+        temp = hTable[i];
+        delete temp;
+    }
+    delete[] hTable;
 }
 
 
@@ -63,6 +70,11 @@ double HashTable::loadFactor() const
 // IMPLEMENT
 int HashTable::find(string key) const
 {
+    for(int i = 0; i < size; i++)
+    {
+        if(hTable[i]->key == key)
+            return hTable[i]->value;
+    }
     return NOT_FOUND; //to be deleted
 }
 
@@ -73,7 +85,61 @@ int HashTable::find(string key) const
 // IMPLEMENT
 void HashTable::insert(string key, int v)
 {
+    double load_factor;
+    bool found = false;
+    cout << "HEJ!" << endl;
+    //om key redan finns
+    for(int i = 0; i < size; i++)
+    {
+         cout << "1" << endl;
+         cout << "Key: " << key << endl;
+        if(hTable[i]->key == key)
+        {
+            cout << "2" << endl;
+            hTable[i]->value = v;
+            found = true;
+            cout << "HITTA DEN! WOOP!" << endl;
+        }
+    }
+    cout << "PÅ DIG!" << endl;
 
+    load_factor = nItems/size;
+
+    if(!found)
+    {
+        cout << "hitta inte... :(" << endl;
+        //re-hash
+        if((load_factor) >= 0.5)
+        {
+            //make a new hash table ???????????????
+        }
+        //new HashTable(size+1);
+
+        //Lägg bara in värdet!!!!
+        else
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (hTable[i]->key == "" && hTable[i]->value == -1)
+                {
+                    cout << "Det här ska inte visas" << endl;
+                    Item* temp = hTable[i];
+                    delete temp;
+                    hTable[i] = new Item(key, v);
+                    /*
+                    hTable[i]->key = key;
+                    hTable[i]->value = v;
+                    break;*/
+                }
+                else if(!hTable[i])
+                {
+                    cout << "Hit ska jag komma!" << endl;
+                    hTable[i] = new Item(key, v);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
