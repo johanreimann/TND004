@@ -70,11 +70,24 @@ double HashTable::loadFactor() const
 // IMPLEMENT
 int HashTable::find(string key) const
 {
-    for(int i = 0; i < size; i++)
-    {
-        if(hTable[i]->key == key)
-            return hTable[i]->value;
-    }
+    int slot = h(key, size);
+    int counter = 0;
+
+    do {
+        if(!hTable[slot])
+            break;
+
+        if(hTable[slot]->key == key)
+            return hTable[slot]->value;
+
+        counter++;
+        slot++;
+
+        if(slot == (size-1))
+            slot = 0;
+
+    } while(counter < size);
+
     return NOT_FOUND; //to be deleted
 }
 
@@ -85,63 +98,58 @@ int HashTable::find(string key) const
 // IMPLEMENT
 void HashTable::insert(string key, int v)
 {
-    double load_factor;
-    bool found = false;
-    cout << "HEJ!" << endl;
-    //om key redan finns
-    for(int i = 0; i < size; i++)
-    {
-         cout << "1" << endl;
-         cout << "Key: " << key << endl;
-        if(hTable[i]->key == key)
+    bool test = false;
+    int slot = h(key, size)+1;
+    int counter = 0;
+    //Rehash
+    cout << endl << "loadFactor: " << loadFactor() << endl;
+    if((loadFactor()) >= MAX_LOAD_FACTOR)
+        reHash();
+
+    //testa om key redan finns
+    do {
+        //key == key -> KLÄRT
+        if (!hTable[slot])
+            break;
+
+        else if(hTable[slot]->key == key)
         {
-            cout << "2" << endl;
-            hTable[i]->value = v;
-            found = true;
-            cout << "HITTA DEN! WOOP!" << endl;
+            hTable[slot]->value = v;
+            test = true;
         }
-    }
-    cout << "PÅ DIG!" << endl;
+        slot++;
+        counter++;
 
-    load_factor = nItems/size;
+        //börja om från början i arrayen
+        if(slot == (size))
+            slot = 1;
 
-    if(!found)
+    } while (!test && ( counter < size ));
+
+    //Fall 1: om key redan finns
+    //Fall 2: Om slot för key = null
+    slot = h(key, size)+1;
+    while (!test)
     {
-        cout << "hitta inte... :(" << endl;
-        //re-hash
-        if((load_factor) >= 0.5)
+        //om key == null
+        if (!hTable[slot])
         {
-            //make a new hash table ???????????????
+            hTable[slot] = new Item(key, v);
+            nItems++;
+            break;
         }
-        //new HashTable(size+1);
-
-        //Lägg bara in värdet!!!!
+        //om deleted key = ""
+        else if(hTable[slot]->key == "" && hTable[slot]->value == -1 )
+        {
+            hTable[slot] = new Item(key, v);
+            nItems++;
+            break;
+            //måste man ta bort Item("", -1) ?
+        }
         else
-        {
-            for (int i = 0; i < size; i++)
-            {
-                if (hTable[i]->key == "" && hTable[i]->value == -1)
-                {
-                    cout << "Det här ska inte visas" << endl;
-                    Item* temp = hTable[i];
-                    delete temp;
-                    hTable[i] = new Item(key, v);
-                    /*
-                    hTable[i]->key = key;
-                    hTable[i]->value = v;
-                    break;*/
-                }
-                else if(!hTable[i])
-                {
-                    cout << "Hit ska jag komma!" << endl;
-                    hTable[i] = new Item(key, v);
-                    break;
-                }
-            }
-        }
+            slot++;
     }
 }
-
 
 //Remove Item with key
 //If an Item with key belongs to the table then return true,
@@ -149,7 +157,24 @@ void HashTable::insert(string key, int v)
 // IMPLEMENT
 bool HashTable::remove(string key)
 {
-    return true; //to be deleted
+    int slot = h(key, size);
+    int counter = 0;
+
+    do {
+        if (hTable[slot]->key == key) {
+            hTable[slot] =  Deleted_Item::get_Item();
+            return true;
+        }
+        counter++;
+        slot++;
+
+        //börja om från början i arrayen
+        if(slot == (size-1))
+            slot = 0;
+
+    }while(counter < size);
+
+    return false; //to be deleted
 }
 
 
@@ -185,6 +210,17 @@ void HashTable::display(ostream& os)
 // IMPLEMENT
 ostream& operator<<(ostream& os, const HashTable& T)
 {
+    for(int i = 0; i < T.size; i++)
+    {
+        if(!T.hTable[i])
+            continue;
+
+        else if(T.hTable[i]->key == "" && T.hTable[i]->value == -1)
+            continue;
+
+        else
+            os << "Key: " << T.hTable[i]->key << " Value: " << T.hTable[i]->value << endl;
+    }
     return os;
 }
 
@@ -194,5 +230,17 @@ ostream& operator<<(ostream& os, const HashTable& T)
 // IMPLEMENT
 void HashTable::reHash()
 {
+    cout << "REHASH" << endl;
+    int newCap = nextPrime((size*2));
+    Item** newHashTable = new Item*[newCap];
 
+    for(int i = 0; i < size; ++i)
+    {
+        cout << "KUL MED REHASH" << endl;
+        newHashTable[i] = hTable[i];
+    }
+
+    delete[] hTable;
+
+    hTable = newHashTable;
 }
