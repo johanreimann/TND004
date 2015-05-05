@@ -1,7 +1,14 @@
 #include <assert.h>
 #include <iomanip>
+#include <fstream>
+#include <string>
 
 #include "hashTable.h"
+
+/*
+Kraschar vid dump table: Konstruktorn skapar en hashtable med skräpvärde i plats 1, varför?
+Funkar om man sätter hTable[0] till nullptr.
+*/
 
 const double MAX_LOAD_FACTOR = 0.5;
 
@@ -40,6 +47,7 @@ HashTable::HashTable(int table_size, HASH f)
     : size(nextPrime(table_size)), h(f), nItems(0)
 {
     hTable = new Item*[size];
+    hTable[0] = nullptr;
 }
 
 
@@ -74,9 +82,6 @@ int HashTable::find(string key) const
     int counter = 0;
 
     do {
-        if(!hTable[slot])
-            break;
-
         if(hTable[slot]->key == key)
             return hTable[slot]->value;
 
@@ -99,20 +104,16 @@ int HashTable::find(string key) const
 void HashTable::insert(string key, int v)
 {
     bool test = false;
-    int slot = h(key, size)+1;
+    int slot = h(key, size);
     int counter = 0;
+
     //Rehash
-    cout << endl << "loadFactor: " << loadFactor() << endl;
     if((loadFactor()) >= MAX_LOAD_FACTOR)
         reHash();
 
     //testa om key redan finns
     do {
-        //key == key -> KLÄRT
-        if (!hTable[slot])
-            break;
-
-        else if(hTable[slot]->key == key)
+        if(hTable[slot]->key == key)
         {
             hTable[slot]->value = v;
             test = true;
@@ -122,13 +123,14 @@ void HashTable::insert(string key, int v)
 
         //börja om från början i arrayen
         if(slot == (size))
-            slot = 1;
+            slot = 0;
 
     } while (!test && ( counter < size ));
 
     //Fall 1: om key redan finns
     //Fall 2: Om slot för key = null
-    slot = h(key, size)+1;
+    slot = h(key, size);
+
     while (!test)
     {
         //om key == null
@@ -151,6 +153,58 @@ void HashTable::insert(string key, int v)
     }
 }
 
+void HashTable::fileInsert(string key)
+{
+    bool test = false;
+    int slot = h(key, size);
+    int counter = 0;
+
+    //Rehash
+    if((loadFactor()) >= MAX_LOAD_FACTOR)
+        reHash();
+
+    //testa om key redan finns
+    do {
+        if(hTable[slot]->key == key)
+        {
+            hTable[slot]->value++;
+            test = true;
+        }
+        slot++;
+        counter++;
+
+        //börja om från början i arrayen
+        if(slot == (size))
+            slot = 0;
+
+    } while (!test && ( counter < size ));
+
+    //Fall 1: om key redan finns
+    //Fall 2: Om slot för key = null
+    slot = h(key, size);
+
+    while (!test)
+    {
+        //om key == null
+        if (!hTable[slot])
+        {
+            hTable[slot] = new Item(key, 1);
+            nItems++;
+            break;
+        }
+        //om deleted key = ""
+        else if(hTable[slot]->key == "" && hTable[slot]->value == -1 )
+        {
+            hTable[slot] = new Item(key, 1);
+            nItems++;
+            break;
+            //måste man ta bort Item("", -1) ?
+        }
+        else
+            slot++;
+    }
+}
+
 //Remove Item with key
 //If an Item with key belongs to the table then return true,
 //otherwise, return false
@@ -163,6 +217,7 @@ bool HashTable::remove(string key)
     do {
         if (hTable[slot]->key == key) {
             hTable[slot] =  Deleted_Item::get_Item();
+            nItems--;
             return true;
         }
         counter++;
@@ -174,13 +229,14 @@ bool HashTable::remove(string key)
 
     }while(counter < size);
 
-    return false; //to be deleted
+    return false;
 }
 
 
 void HashTable::display(ostream& os)
 {
-    if (!hTable) return;
+    if (!hTable)
+        return;
 
     os << "-------------------------------\n";
 
@@ -195,13 +251,11 @@ void HashTable::display(ostream& os)
         else
         {
             string key = hTable[i]->key;
-
             os << "key = " << "\"" << key << "\""
                << setw(12) << "value = " << hTable[i]->value
                << "  (" << h(key,size) << ")" << endl;
         }
     }
-
     os << endl;
 }
 
@@ -224,23 +278,49 @@ ostream& operator<<(ostream& os, const HashTable& T)
     return os;
 }
 
+void HashTable::operator[]()
+{
+    string word;
+    ifstream infile;
+	infile.open("test files/test_file1.txt");
+
+	while(infile >> word) // To get you all the lines.
+    {
+    	cleanup(word);
+        fileInsert(word);
+    }
+	infile.close();
+
+    display();
+}
+
+void cleanup(string& w)
+{
+	for(int i = 0; i < w.size(); i++)
+    {
+        if(ispunct(w[i]) && w[i] != '\'')
+        {
+            w.erase(i, 1);
+            i--;
+        }
+        w[i] = tolower(w[i]);
+    }
+}
+
 //Private member functions
 
 //Rehashing function
 // IMPLEMENT
 void HashTable::reHash()
 {
-    cout << "REHASH" << endl;
-    int newCap = nextPrime((size*2));
+    int newCap = nextPrime(size*2);
     Item** newHashTable = new Item*[newCap];
 
     for(int i = 0; i < size; ++i)
     {
-        cout << "KUL MED REHASH" << endl;
         newHashTable[i] = hTable[i];
     }
-
     delete[] hTable;
-
+    size = newCap;
     hTable = newHashTable;
 }
