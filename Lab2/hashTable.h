@@ -103,6 +103,8 @@ public:
     void insert(string key, int v = 0);
 
 
+    void fileInsert(string key);
+
     /** \brief Remove an item from the table
       *
       * \param key of the item to be removed
