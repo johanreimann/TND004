@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <iomanip>
-#include <fstream>
-#include <string>
+
 
 #include "hashTable.h"
 
@@ -152,58 +151,22 @@ void HashTable::insert(string key, int v)
             slot++;
     }
 }
-
-void HashTable::fileInsert(string key)
+/*
+void HashTable::fileInsert(string filename)
 {
-    bool test = false;
-    int slot = h(key, size);
-    int counter = 0;
+    string word;
+    ifstream infile;
+	infile.open("test files/" + filename);
 
-    //Rehash
-    if((loadFactor()) >= MAX_LOAD_FACTOR)
-        reHash();
-
-    //testa om key redan finns
-    do {
-        if(hTable[slot]->key == key)
-        {
-            hTable[slot]->value++;
-            test = true;
-        }
-        slot++;
-        counter++;
-
-        //börja om från början i arrayen
-        if(slot == (size))
-            slot = 0;
-
-    } while (!test && ( counter < size ));
-
-    //Fall 1: om key redan finns
-    //Fall 2: Om slot för key = null
-    slot = h(key, size);
-
-    while (!test)
+	while(infile >> word) // To get you all the lines.
     {
-        //om key == null
-        if (!hTable[slot])
-        {
-            hTable[slot] = new Item(key, 1);
-            nItems++;
-            break;
-        }
-        //om deleted key = ""
-        else if(hTable[slot]->key == "" && hTable[slot]->value == -1 )
-        {
-            hTable[slot] = new Item(key, 1);
-            nItems++;
-            break;
-            //måste man ta bort Item("", -1) ?
-        }
-        else
-            slot++;
+    	cleanUp(word);
+        hTable[word];
     }
-}
+	infile.close();
+
+    display(cout);
+}*/
 
 //Remove Item with key
 //If an Item with key belongs to the table then return true,
@@ -278,23 +241,74 @@ ostream& operator<<(ostream& os, const HashTable& T)
     return os;
 }
 
-void HashTable::operator[]()
+int &HashTable::operator[](const string w)
 {
-    string word;
-    ifstream infile;
-	infile.open("test files/test_file1.txt");
+    string word = w;
+    cleanUp(word);
 
-	while(infile >> word) // To get you all the lines.
+    bool test = false;
+    int slot = h(word, size);
+    int counter = 0;
+
+    //Rehash
+    if((loadFactor()) >= MAX_LOAD_FACTOR)
+        reHash();
+
+    //testa om key redan finns
+    do {
+        cout << "4" << endl;
+        if (!hTable[slot])
+        {
+            slot++;
+            counter++;
+            continue;
+        }
+        else if(hTable[slot]->key == word)
+        {
+            cout << "6" << endl;
+            hTable[slot]->value++;
+            test = true;
+        }
+        slot++;
+        counter++;
+
+        cout << "8" << endl;
+        //börja om från början i arrayen
+        if(slot == (size))
+            slot = 0;
+
+    } while (!test && ( counter < size ));
+
+    cout << "jeeeeeh" << endl;
+    //Fall 1: om key redan finns
+    //Fall 2: Om slot för key = null
+    slot = h(word, size);
+    cout << "7" << endl;
+    while (!test)
     {
-    	cleanup(word);
-        fileInsert(word);
+        cout << "5" << endl;
+        //om key == null
+        if (!hTable[slot])
+        {
+            hTable[slot] = new Item(word, 1);
+            nItems++;
+            break;
+        }
+        //om deleted key = ""
+        else if(hTable[slot]->key == "" && hTable[slot]->value == -1 )
+        {
+            hTable[slot] = new Item(word, 1);
+            nItems++;
+            break;
+            //måste man ta bort Item("", -1) ?
+        }
+        else
+            slot++;
     }
-	infile.close();
-
-    display();
+    return hTable[slot]->value;
 }
 
-void cleanup(string& w)
+void HashTable::cleanUp(string& w)
 {
 	for(int i = 0; i < w.size(); i++)
     {
