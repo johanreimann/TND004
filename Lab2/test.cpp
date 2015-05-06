@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "hashTable.h"
 
@@ -56,7 +57,8 @@ int main()
 
     HashTable table(TABLE_SIZE, my_hash);
 
-    string key;
+    string key, word, fileName;
+    ifstream infile;
     int value = 0;
 
     int choice;
@@ -110,7 +112,23 @@ int main()
             break;
 
         case 5:
-            table.fileInsert();
+            cout << "Enter name of file: ";
+            cin >> fileName;
+
+            infile.open("test files/" + fileName);
+
+            cout << "1" << endl;
+
+            while(infile >> word) // To get you all the lines.
+            {
+                cout << "2" << endl;
+                table[word];
+                cout << "3" << endl;
+            }
+            infile.close();
+
+            //display(cout);
+            //table.fileInsert(key);
             break;
 
         case 6:
