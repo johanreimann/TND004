@@ -102,6 +102,7 @@ public:
     // IMPLEMENT
     void insert(string key, int v = 0);
 
+    void cleanUp(string& w);
 
     void fileInsert(string key);
 
@@ -129,6 +130,8 @@ public:
     // IMPLEMENT
     friend ostream& operator<<(ostream& os, const HashTable& T);
 
+
+    int &operator[](const string word);
 
     /** \brief Display all entries in the table
       *
