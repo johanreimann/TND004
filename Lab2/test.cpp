@@ -117,15 +117,13 @@ int main()
 
             infile.open("test files/" + fileName);
 
-            cout << "1" << endl;
-
             while(infile >> word) // To get you all the lines.
             {
-                cout << "2" << endl;
                 table[word];
-                cout << "3" << endl;
             }
             infile.close();
+
+            cout << table;
 
             //display(cout);
             //table.fileInsert(key);
