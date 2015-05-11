@@ -1,13 +1,8 @@
 #include <assert.h>
 #include <iomanip>
 
-
 #include "hashTable.h"
 
-/*
-Kraschar vid dump table: Konstruktorn skapar en hashtable med skräpvärde i plats 1, varför?
-Funkar om man sätter hTable[0] till nullptr.
-*/
 
 const double MAX_LOAD_FACTOR = 0.5;
 
@@ -54,14 +49,12 @@ HashTable::HashTable(int table_size, HASH f)
 // IMPLEMENT
 HashTable::~HashTable()
 {
-//    Item* temp;
-//
-//    for(int i = 0; i < size; i++)
-//    {
-//        temp = hTable[i];
-//        delete temp;
-//    }
-    delete hTable;
+    for(int i = 0; i < size; i++)
+    {
+        if(!(hTable[i] == Deleted_Item::get_Item()))
+            delete hTable[i];
+    }
+    delete[] hTable;
 }
 
 
@@ -81,11 +74,8 @@ int HashTable::find(string key) const
     int counter = 0;
 
     do {
-        if(hTable[slot] == nullptr || hTable[slot] == Deleted_Item::get_Item())
-        {
-            counter++;
-            slot++;
-        }
+        if(!hTable[slot])
+            break;
 
         else if(hTable[slot]->key == key)
             return hTable[slot]->value;
@@ -120,11 +110,8 @@ void HashTable::insert(string key, int v)
 
     //testa om key redan finns
     do {
-        if(hTable[slot] == nullptr || hTable[slot] == Deleted_Item::get_Item())
-        {
-            slot++;
-            counter++;
-        }
+        if(!hTable[slot])
+            break;
 
         else if(hTable[slot]->key == key)
         {
@@ -158,9 +145,10 @@ void HashTable::insert(string key, int v)
         }
 
         else
-        {
             slot++;
-        }
+
+        if(slot == (size))
+            slot = 0;
     }
 }
 
@@ -174,11 +162,9 @@ bool HashTable::remove(string key)
     int counter = 0;
 
     do {
-        if(hTable[slot] == nullptr || hTable[slot] == Deleted_Item::get_Item())
-        {
-            counter++;
-            slot++;
-        }
+        if(!hTable[slot])
+            break;
+
         else if(hTable[slot]->key == key)
         {
             hTable[slot] =  Deleted_Item::get_Item();
@@ -190,6 +176,7 @@ bool HashTable::remove(string key)
             counter++;
             slot++;
         }
+
         //börja om från början i arrayen
         if(slot == (size-1))
             slot = 0;
@@ -264,7 +251,6 @@ ostream& operator<<(ostream& os, const HashTable& T)
     return os;
 }
 
-
 void HashTable::operator[](const string w)
 {
     string word = w;
@@ -280,11 +266,9 @@ void HashTable::operator[](const string w)
 
     //testa om key redan finns
     do {
-        if (hTable[slot] == nullptr || hTable[slot] == Deleted_Item::get_Item())
-        {
-            slot++;
-            counter++;
-        }
+        if (hTable[slot] == nullptr)
+            break;
+
         else if(hTable[slot]->key == word)
         {
             hTable[slot]->value++;
@@ -295,15 +279,13 @@ void HashTable::operator[](const string w)
             slot++;
             counter++;
         }
-        //börja om från början i arrayen
 
+        //börja om från början i arrayen
         if(slot == (size))
             slot = 0;
 
     } while (!test && ( counter < size ));
 
-    //Fall 1: om key redan finns
-    //Fall 2: Om slot för key = null
     slot = h(word, size);
     while (!test)
     {
@@ -316,8 +298,10 @@ void HashTable::operator[](const string w)
         }
         else
             slot++;
+
+        if(slot == (size))
+            slot = 0;
     }
-//    return hTable[slot]->value;
 }
 
 
@@ -341,19 +325,16 @@ void HashTable::cleanUp(string& w)
 void HashTable::reHash()
 {
     int newCap = nextPrime(size*2);
-    Item** newHashTable = new Item*[newCap];
-
-    for(int i = 0; i < newCap; i++)
-        newHashTable[i] = nullptr;
+    HashTable temp(newCap, h);
 
     for(int i = 0; i < size; ++i)
-        newHashTable[i] = hTable[i];
+    {
+        if(!hTable[i])
+            continue;
 
-    delete hTable;
-    size = newCap;
-    hTable = newHashTable;
-
-/*
-    cout << "Rehashing... " << endl;
-    cout << "New Size: " << newCap << endl << endl;*/
+        temp.insert(hTable[i]->key, hTable[i]->value);
+    }
+    std::swap(temp.hTable, hTable);
+    std::swap(temp.nItems, nItems);
+    std::swap(temp.size, size);
 }
