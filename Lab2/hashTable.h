@@ -104,7 +104,9 @@ public:
 
     void cleanUp(string& w);
 
-    void fileInsert(string key);
+    int numberOfWords(HashTable& T);
+
+    int get_number_total_words() const;
 
     /** \brief Remove an item from the table
       *
@@ -131,7 +133,7 @@ public:
     friend ostream& operator<<(ostream& os, const HashTable& T);
 
 
-    int &operator[](const string word);
+    void operator[](const string word);
 
     /** \brief Display all entries in the table
       *

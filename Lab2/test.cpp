@@ -114,21 +114,14 @@ int main()
         case 5:
             cout << "Enter name of file: ";
             cin >> fileName;
-
             infile.open("test files/" + fileName);
 
-            cout << "1" << endl;
-
             while(infile >> word) // To get you all the lines.
-            {
-                cout << "2" << endl;
                 table[word];
-                cout << "3" << endl;
-            }
-            infile.close();
 
-            //display(cout);
-            //table.fileInsert(key);
+            infile.close();
+            cout << table;
+
             break;
 
         case 6:
