@@ -14,7 +14,7 @@
 Node::Node(ELEMENT v, Node *l, Node *r)
  : value(v), left(l), right(r)
 {
-    l_thread = r_thread = false;
+    l_thread = r_thread = true;
 }
 
 
@@ -31,8 +31,57 @@ Node::~Node()
 //Otherwise, return false --v already exists in the tree
 bool Node::insert(ELEMENT v)
 {
-    //ADD CODE
-    return false;
+    Node *tmp = this;
+    bool ins = false;
+
+    do
+    {
+        if(tmp->left->value.first == v.first)
+        {
+            tmp->left->value.second++;
+            return false;
+        }
+        else if(tmp->right->value.first == v.first)
+        {
+            tmp->right->value.second++;
+            return false;
+        }
+
+        else if(tmp->value.first > v.first)
+        {
+            cout << "l" << endl;
+            cout << tmp->value.first << endl;
+            if(tmp->l_thread)
+            {
+                Node *newNode = new Node(v, right, tmp->right);
+                tmp->left = newNode;
+                tmp->l_thread = false;
+                ins = true;
+                return true;
+            }
+            else
+                tmp = tmp->left;
+        }
+
+        else
+        {
+            cout << "r" << endl;
+            cout << tmp->value.first << endl;
+            if(tmp->r_thread)
+            {
+                Node *newNode = new Node(v, tmp->right, right);
+                tmp->right = newNode;
+                tmp->r_thread = false;
+                tmp->left = newNode; //HUR SKA DE PEKA??
+                ins = true;
+                return true;
+            }
+            else
+                tmp = tmp->right;
+        }
+    } while(!ins);
+
+    return true;
 }
 
 
