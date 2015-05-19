@@ -14,7 +14,7 @@
 Node::Node(ELEMENT v, Node *l, Node *r)
  : value(v), left(l), right(r)
 {
-    l_thread = r_thread = true;
+    l_thread = r_thread = true; //ledig = true, pekar isch på root
 }
 
 
@@ -22,7 +22,11 @@ Node::Node(ELEMENT v, Node *l, Node *r)
 //recursively deletes the nodes in the left_subtree and right-subtree
 Node::~Node()
 {
-    //ADD CODE
+    if(!l_thread)
+        delete left;
+
+    if(!r_thread)
+        delete right;
 }
 
 
@@ -32,58 +36,116 @@ Node::~Node()
 bool Node::insert(ELEMENT v)
 {
     Node *tmp = this;
+
+    if(tmp->value.first == v.first)
+    {
+        tmp->value.second++;
+        return false;
+    }
+
+    //Lägg till åt höger
+    else if(v.first > value.first && tmp->r_thread)
+    {
+        Node *newNode = new Node(v, tmp->left, tmp->right);
+        tmp->right = newNode;
+        tmp->r_thread = false;
+        return true;
+    }
+    //lägg till åt vänster
+    else if(v.first < value.first && tmp->l_thread)
+    {
+        Node *newNode = new Node(v, tmp->left, tmp->right);
+        tmp->left = newNode;
+        tmp->l_thread = false;
+        return true;
+    }
+
+    //Stega vidare i trädet åt höger
+    else if(v.first > value.first && !tmp->r_thread)
+    {
+        tmp = tmp->right;
+        return tree_insert(this, tmp, v);
+    }
+
+    //Stega vidare i trädet åt vänster
+    else if(v.first < value.first && !tmp->l_thread)
+    {
+        tmp = tmp->left;
+        return tree_insert(this, tmp, v);
+    }
+    return false;
+}
+
+
+// tryck in i trädet!
+bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
+{
     bool ins = false;
 
     do
     {
-        if(tmp->left->value.first == v.first)
+        if(tmp->value.first == v.first)
         {
-            tmp->left->value.second++;
+            tmp->value.second++;
             return false;
         }
-        else if(tmp->right->value.first == v.first)
+        //om större och höger är ledig->lägg in till höger
+        else if(v.first > tmp->value.first && tmp->r_thread)
         {
-            tmp->right->value.second++;
-            return false;
+            Node *newNode;
+
+            if(tmp->right == n)
+                newNode = new Node(v, tmp, tmp->right);
+
+            else
+                newNode = new Node(v, tmp, tmp);
+
+            tmp->right = newNode;
+            tmp->r_thread = false;
+            return true;
         }
 
-        else if(tmp->value.first > v.first)
+        //gå åt höger
+        else if( v.first > tmp->value.first&& !tmp->r_thread)
+            tmp = tmp->right;
+
+        //gå åt vänster
+        else if( v.first < tmp->value.first&& !tmp->l_thread)
+            tmp = tmp->left;
+
+        //lägg in till höger
+        else if(v.first > tmp->value.first && tmp->r_thread)
         {
-            cout << "l" << endl;
-            cout << tmp->value.first << endl;
-            if(tmp->l_thread)
-            {
-                Node *newNode = new Node(v, right, tmp->right);
-                tmp->left = newNode;
-                tmp->l_thread = false;
-                ins = true;
-                return true;
-            }
+            Node *newNode;
+            //Om parent pekar på root
+            if(tmp->right == n)
+                newNode = new Node(v, tmp, tmp->right);
+            //Peka annars på parent
             else
-                tmp = tmp->left;
+                newNode = new Node(v, tmp, tmp);
+
+            tmp->right = newNode;
+            tmp->r_thread = false;
+            return true;
         }
 
-        else
+        //Lägg till vänster
+        else if(v.first < tmp->value.first && tmp->l_thread)
         {
-            cout << "r" << endl;
-            cout << tmp->value.first << endl;
-            if(tmp->r_thread)
-            {
-                Node *newNode = new Node(v, tmp->right, right);
-                tmp->right = newNode;
-                tmp->r_thread = false;
-                tmp->left = newNode; //HUR SKA DE PEKA??
-                ins = true;
-                return true;
-            }
+            Node* newNode;
+            //Om parent pekar på root
+            if(tmp->left == n)
+                newNode = new Node(v, tmp->left, tmp);
+            //Annars peka på parent
             else
-                tmp = tmp->right;
+                newNode = new Node(v, tmp, tmp);
+
+            tmp->left = newNode;
+            tmp->l_thread = false;
+            return true;
         }
     } while(!ins);
-
-    return true;
 }
-
 
 
 //Remove the key from the tree having as root this node
@@ -121,17 +183,30 @@ void Node::removeMe(Node* parent, bool isRight)
 //If there is no node storing key then return nullptr
 Node* Node::find(string key)
 {
-    //ADD CODE
+    if(value.first == key)
+    {
+        return this;
+    }
+
+    else if(key < value.first && !l_thread)
+        return left->find(key);
+
+    else if(key > value.first && !r_thread)
+        return right->find(key);
+
     return nullptr;
 }
 
 
-//Return a pointer to the node storing the smalest value
+//Return a pointer to the node storing the smallest value
 //of the tree whose root is this node
 Node* Node::findMin()
 {
     //ADD CODE
-    return nullptr;
+    if(l_thread)
+        return this;
+
+    return left->findMin();
 }
 
 
@@ -140,9 +215,11 @@ Node* Node::findMin()
 Node* Node::findMax()
 {
     //ADD CODE
-    return nullptr;
-}
+    if(!r_thread)
+        return this;
 
+    return right->findMax();
+}
 
 
 //Display in inorder all keys
