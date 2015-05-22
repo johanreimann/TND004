@@ -65,10 +65,43 @@ void BST_threaded::insert(ELEMENT v)
 }
 
 
+//    if(value.first == key)
+//        return this;
+//
+//    else if(key < value.first && !l_thread)
+//        return left->find(key);
+//
+//    else if(key > value.first && !r_thread)
+//        return right->find(key);
+//
+//    return nullptr;
+
 //Remove node with key from the tree
 void BST_threaded::remove(string key)
 {
-   //ADD CODE
+    //hitta nod och parent till denna.
+
+    bool is_right = false;
+    Node *node_parent;
+
+    if (root->left->value.first == key)
+        root->left->remove(key, root, is_right);
+
+
+    else
+    {
+        node_parent = root->left->find_parent(key, is_right);
+        if (node_parent) //om den hittas
+        {
+            if(is_right)
+                counter -= node_parent->right->remove(key, node_parent, is_right);
+
+            else
+                counter -= node_parent->left->remove(key, node_parent, is_right);
+        }
+        else
+            cout << "hittade inte noden!" << endl;
+    }
 }
 
 
@@ -79,6 +112,7 @@ void BST_threaded::remove(string key)
 //then an ELEMENT (key,0) is inserted and a reference to it is returned
 ELEMENT& BST_threaded::operator[](string key)
 {
+
     BiIterator it = find(key);
 
     if(it == end())
@@ -86,16 +120,7 @@ ELEMENT& BST_threaded::operator[](string key)
         insert(ELEMENT(key, 0));
         it = find(key);
     }
-
-    //VARFÖR FUNKAR DET INTE UTAN ATT DEKLARERA DESSA?CP
-//    string k = it->first;
-//    int t = it->second;
-
-//    ELEMENT f(it->first, it->second);
-
-//    ELEMENT f(k, t);
-
-    return *it; //MUST remove this code
+    return *it;
 }
 
 
@@ -113,58 +138,6 @@ BiIterator BST_threaded::find(string key) const
 
     else
         return end();
-
-   /* Node *tmp = root->left;
-    BiIterator it = begin(); //ELEMENTET
-    bool ins = false;
-
-    for (it; it != end(); it++)
-    {
-        if(it->first == key)
-            return it;
-    }*/
-
-//    cout << "KEY " << key << endl;
-/*
-    while(!ins)
-    {
-
-//        cout << " IT: " << it->value.first << endl;
-//        cout << "KEY:  " << key << endl;
-
-        if(key == it->first)
-        {
-            cout << "2" << endl;
-            ins = true;
-            cout << "HÄR ÄR IT: " << it->first << endl;
-            return it;
-        }
-
-
-        else if(key < it->first && !it->)
-        {
-//            cout << "3" << endl;
-            it = it->left;
-//             cout << "efter 3: " << it->value.first << endl;
-        }
-
-
-        else if(key > it->value.first && !it->r_thread)
-        {
-//            cout << "4" << endl;
-            it = it->right;
-        }
-
-
-        else if((key < it->value.first && it->l_thread) || (key > it->value.first && it->r_thread))
-        {
-            ins = true;
-            return end();
-        }
-
-    }*/
-
-
 }
 
 
@@ -172,7 +145,6 @@ BiIterator BST_threaded::find(string key) const
 BiIterator BST_threaded::begin() const
 {
     Node *node = root->findMin();
-    cout << "MIN: " << node->value.first << endl;
     return BiIterator(node);
 }
 
