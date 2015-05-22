@@ -86,6 +86,8 @@ private:
     //IMPLEMENT
     bool insert(ELEMENT v);
 
+    bool tree_insert(Node* n, Node* tmp, ELEMENT v);
+
 
     /** \brief Remove the node storing key from the tree T, where T is the sub-tree with root this node.
     *
@@ -144,6 +146,8 @@ private:
     //key is possibly stored in one of the sub-trees of this node
     //If there is no node storing key then return nullptr
     Node* find(string key);
+
+    Node* find_parent(string key, bool &is_right);
 
 
     /** \brief Find the node storing the smallest key in tree T, where T is the sub-tree with root this node.
