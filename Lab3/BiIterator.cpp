@@ -70,6 +70,7 @@ BiIterator& BiIterator::operator++()
 {
     //FUNGERAR? VI FATTAR  INTE RIKTIGT........
     //Node* tmp = current;
+
     if (!current->r_thread) //is there right sub-tree
         current = current->right->findMin();
 
@@ -85,31 +86,15 @@ BiIterator& BiIterator::operator++()
 //return (A copy of) this iterator, before advancing the internal pointer.
 BiIterator BiIterator::operator++(int)
 {
-    cout << "kiss!";
     BiIterator it(current);
 
-    if (!current->r_thread) //is there right sub-tree
+    if (!it.current->r_thread) //is there right sub-tree
         current = current->right->findMin();
     else
-        current = current->right->right->findMin();
+        current = current->right;
 
     return it;
 
-//        while(!current->left->l_thread)
-//        {
-//            current = current->left; //find the smallest node of the right subtree
-//        }
-//        Node* tmp = current;
-//        current = current->left;
-//        return tmp;
-//
-//
-//    else
-//    {
-//        Node* tmp = current;
-//        current = current->right; //follow right thread
-//        return tmp;
-//    }
 }
 
 //Pre decrement operator
@@ -117,26 +102,14 @@ BiIterator BiIterator::operator++(int)
 //return This iterator, after updating the internal pointer.
 BiIterator& BiIterator::operator--()
 {
-    //WAHHHOOOOO!
     if (!current->l_thread) //is there left sub-tree?
         current = current->left->findMax();
 
     else
-        current = current->right->findMin();
+        current = current->left;
 
     return *this;
 
-//    {
-//        do
-//        {
-//            current = current->right; //find the biggest node of the left subtree
-//        } while (!current->r_thread);
-//    }
-//
-//    else
-//        current = current->left; //follow left thread
-//
-//    return *this;
 }
 
 //Pos decrement operator
@@ -144,32 +117,13 @@ BiIterator BiIterator::operator--(int)
 {
     BiIterator it(current);
 
-	if (!current->l_thread)
+	if (!current->l_thread) //vänster träd finns
 		current = current->left->findMax();
+
 	else
-		current = current->right->findMin();
+		current = current->left;
 
 	return it;
-
-
-
-//    if (!current->l_thread) //is there left sub-tree?
-//    {
-//        while(!current->right->r_thread)
-//        {
-//            current = current->right; //find the smallest node of the right subtree
-//        }
-//        Node* tmp = current;
-//        current = current->right;
-//        return tmp;
-//    }
-//
-//    else
-//    {
-//        Node* tmp = current;
-//        current = current->left; //follow right thread
-//        return tmp;
-//    }
 }
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
