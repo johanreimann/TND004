@@ -46,7 +46,7 @@ bool Node::insert(ELEMENT v)
     //Lägg till åt höger
     else if(v.first > value.first && tmp->r_thread)
     {
-        Node *newNode = new Node(v, tmp->left, tmp->right);
+        Node *newNode = new Node(v, tmp, tmp->right);
         tmp->right = newNode;
         tmp->r_thread = false;
         return true;
@@ -54,7 +54,7 @@ bool Node::insert(ELEMENT v)
     //lägg till åt vänster
     else if(v.first < value.first && tmp->l_thread)
     {
-        Node *newNode = new Node(v, tmp->left, tmp->right);
+        Node *newNode = new Node(v, tmp->left, tmp);
         tmp->left = newNode;
         tmp->l_thread = false;
         return true;
@@ -94,11 +94,7 @@ bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
         {
             Node *newNode;
 
-            if(tmp->right == n)
-                newNode = new Node(v, tmp, tmp->right);
-
-            else
-                newNode = new Node(v, tmp, tmp);
+            newNode = new Node(v, tmp, tmp->right);
 
             tmp->right = newNode;
             tmp->r_thread = false;
@@ -117,12 +113,9 @@ bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
         else if(v.first > tmp->value.first && tmp->r_thread)
         {
             Node *newNode;
+
             //Om parent pekar på root
-            if(tmp->right == n)
-                newNode = new Node(v, tmp, tmp->right);
-            //Peka annars på parent
-            else
-                newNode = new Node(v, tmp, tmp);
+            newNode = new Node(v, tmp, tmp->right);
 
             tmp->right = newNode;
             tmp->r_thread = false;
@@ -134,11 +127,7 @@ bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
         {
             Node* newNode;
             //Om parent pekar på root
-            if(tmp->left == n)
-                newNode = new Node(v, tmp->left, tmp);
-            //Annars peka på parent
-            else
-                newNode = new Node(v, tmp, tmp);
+            newNode = new Node(v, tmp->left, tmp);
 
             tmp->left = newNode;
             tmp->l_thread = false;
@@ -155,7 +144,40 @@ bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
 //isRight==true: this node is right child of parent
 bool Node::remove(string key, Node* parent, bool isRight)
 {
-    //ADD CODE
+    //fall 1: vänster nod med både vänster och höger child
+    if (!isRight && !l_thread && !r_thread)
+    {
+        Node* tmp = this;
+        value = tmp->right->findMin()->value;
+        if(!tmp->right->l_thread)
+        {
+            tmp = tmp->right;
+            while(!tmp->left->l_thread)
+                tmp = tmp->left;
+
+            tmp->left->removeMe(tmp, false);
+        }
+        else
+            tmp->right->removeMe(tmp, true);
+    }
+
+    //fall 2: höger nod med både vänter och höger child
+    else if (isRight && !l_thread && !r_thread)
+    {
+        Node* tmp = this;
+        tmp->value = tmp->left->findMin()->value;
+        tmp = tmp->left;
+        if(!tmp->l_thread)
+        {
+            while(!tmp->left->l_thread)
+                tmp = tmp->left;
+        }
+        tmp->left->removeMe(tmp, false);
+    }
+
+    else
+        removeMe(parent, isRight);
+
     return false;
 }
 
@@ -173,7 +195,47 @@ bool Node::remove(string key, Node* parent, bool isRight)
 //2c: a right child with no children
 void Node::removeMe(Node* parent, bool isRight)
 {
-   //ADD CODE
+    //1a; left child with only a right child
+    if (!isRight && l_thread && !r_thread)
+    {
+        parent->left = right;
+        right->left = left;
+    }
+
+    //1b: a left child with only a left child
+    else if (!isRight && !l_thread && r_thread)
+    {
+        parent->left = left;
+        left->right = right;
+    }
+
+    //1c: a left child with no children
+    else if (!isRight && l_thread && r_thread)
+    {
+        parent->left = parent->left->left;
+        parent->l_thread = true;
+    }
+
+    //2a: a right child with only a right child
+    else if (isRight && l_thread && !r_thread)
+    {
+        parent->right = right;
+        right->left = left;
+    }
+
+    //2b: a right child with only a left child
+    else if (isRight && !l_thread && r_thread)
+    {
+        parent->right = left;
+        left->right = right;
+    }
+
+    //2c: a right child with no children
+    else
+    {
+        parent->right = right;
+        parent->r_thread = true;
+    }
 }
 
 
@@ -184,9 +246,7 @@ void Node::removeMe(Node* parent, bool isRight)
 Node* Node::find(string key)
 {
     if(value.first == key)
-    {
         return this;
-    }
 
     else if(key < value.first && !l_thread)
         return left->find(key);
@@ -195,6 +255,33 @@ Node* Node::find(string key)
         return right->find(key);
 
     return nullptr;
+}
+
+//return parent(node) of found key
+Node* Node::find_parent(string key, bool &is_right)
+{
+    if (key < value.first && !l_thread)
+    {
+        if (left->value.first == key)
+        {
+            is_right = false;
+            return this; //return parent
+        }
+        else
+            return left->find_parent(key, is_right);
+    }
+
+    else if (key > value.first && !r_thread )
+    {
+        if (right->value.first == key)
+        {
+            is_right = true;
+            return this;
+        }
+        else
+            return right->find_parent(key, is_right);
+    }
+    return nullptr; //hittar ej
 }
 
 
@@ -215,7 +302,7 @@ Node* Node::findMin()
 Node* Node::findMax()
 {
     //ADD CODE
-    if(!r_thread)
+    if(r_thread)
         return this;
 
     return right->findMax();
