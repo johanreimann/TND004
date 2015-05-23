@@ -148,7 +148,7 @@ bool Node::remove(string key, Node* parent, bool isRight)
     if (!isRight && !l_thread && !r_thread)
     {
         Node* tmp = this;
-        value = tmp->right->findMin()->value;
+        tmp->value = tmp->right->findMin()->value;
         if(!tmp->right->l_thread)
         {
             tmp = tmp->right;
@@ -166,13 +166,18 @@ bool Node::remove(string key, Node* parent, bool isRight)
     {
         Node* tmp = this;
         tmp->value = tmp->left->findMin()->value;
-        tmp = tmp->left;
-        if(!tmp->l_thread)
+        if(!tmp->left->l_thread)
         {
+            tmp = tmp->left;
             while(!tmp->left->l_thread)
                 tmp = tmp->left;
+
+            tmp->left->removeMe(tmp, false);
         }
-        tmp->left->removeMe(tmp, false);
+        else
+        {
+            vad ska vi göra här?
+        }
     }
 
     else
@@ -260,10 +265,13 @@ Node* Node::find(string key)
 //return parent(node) of found key
 Node* Node::find_parent(string key, bool &is_right)
 {
+    cout << "p" << endl;
     if (key < value.first && !l_thread)
     {
+        cout << "k" << endl;
         if (left->value.first == key)
         {
+            cout << "m" << endl;
             is_right = false;
             return this; //return parent
         }
@@ -271,16 +279,19 @@ Node* Node::find_parent(string key, bool &is_right)
             return left->find_parent(key, is_right);
     }
 
-    else if (key > value.first && !r_thread )
+    else if (key > value.first && !r_thread)
     {
+        cout << "n" << endl;
         if (right->value.first == key)
         {
+            cout << "ö" << endl;
             is_right = true;
             return this;
         }
         else
             return right->find_parent(key, is_right);
     }
+
     return nullptr; //hittar ej
 }
 
