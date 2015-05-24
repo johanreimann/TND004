@@ -68,9 +68,6 @@ bool BiIterator::operator!=(const BiIterator &it) const
 //return This iterator, after advancing the internal pointer.
 BiIterator& BiIterator::operator++()
 {
-    //FUNGERAR? VI FATTAR  INTE RIKTIGT........
-    //Node* tmp = current;
-
     if (!current->r_thread) //is there right sub-tree
         current = current->right->findMin();
 
