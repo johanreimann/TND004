@@ -121,29 +121,9 @@ int main()
             counter++;
         }
     }
-
     for (int i = 0; i < counter; i++)
-    {
-        cout << "ta bort: " << words[i] << endl;
         table.remove(words[i]);
-    }
 
-
-//    for(it; it !=table.end(); it++)
-//    while(it != table.end())
-//    {
-//        cout << it->first << endl;
-//        if(it->second == 1)
-//        {
-//            cout << "1" << endl;
-//            cout << it->first << endl;
-//            table.remove(it->first);
-//            count--;
-//            it--;
-//        }
-//        else
-//            it++;
-//    }
     count -= counter;
 
     display(table, count);
@@ -153,9 +133,16 @@ int main()
     *          then display all words in the interval [w1,w2]  *
     ************************************************************/
 
-    //ADD CODE
+    string w1, w2;
+    cout << "Enter two words:" << endl;
+    cin >> w1 >> w2;
+    cout << endl << "Frequency table in [" << w1 << ", " << w2 << "]" << endl << endl;
 
+    BiIterator itBegin = table.find(w1);
+    BiIterator itEnd = ++table.find(w2);
 
+    for (itBegin; itBegin != itEnd; itBegin++)
+        cout << setw(22) << left << itBegin->first << itBegin->second << endl;
 
     return 0;
 }
