@@ -31,6 +31,11 @@ BST_threaded::~BST_threaded()
 }
 
 
+int BST_threaded::get_counter()
+{
+    return counter;
+}
+
 //Test if the tree is empty
 bool BST_threaded::empty() const
 {
@@ -64,29 +69,15 @@ void BST_threaded::insert(ELEMENT v)
         counter += root->left->insert(v); //call NODE::insert()
 }
 
-
-//    if(value.first == key)
-//        return this;
-//
-//    else if(key < value.first && !l_thread)
-//        return left->find(key);
-//
-//    else if(key > value.first && !r_thread)
-//        return right->find(key);
-//
-//    return nullptr;
-
 //Remove node with key from the tree
 void BST_threaded::remove(string key)
 {
     //hitta nod och parent till denna.
-
     bool is_right = false;
     Node *node_parent;
 
     if (root->left->value.first == key)
         root->left->remove(key, root, is_right);
-
 
     else
     {
@@ -112,7 +103,6 @@ void BST_threaded::remove(string key)
 //then an ELEMENT (key,0) is inserted and a reference to it is returned
 ELEMENT& BST_threaded::operator[](string key)
 {
-
     BiIterator it = find(key);
 
     if(it == end())
@@ -131,11 +121,16 @@ ELEMENT& BST_threaded::operator[](string key)
 //Stega ökande: lägsta till största
 BiIterator BST_threaded::find(string key) const
 {
-    Node *tmp = root->left->find(key);
+    Node *tmp;
+    if(!root->l_thread)
+    {
+        tmp = root->left->find(key);
+        if(tmp != nullptr)
+            return BiIterator(tmp);
 
-    if(tmp != nullptr)
-        return BiIterator(tmp);
-
+        else
+            return end();
+    }
     else
         return end();
 }
