@@ -20,29 +20,35 @@ using namespace std;
 BST_threaded::BST_threaded()
  : counter(0)
 {
-    //ADD CODE
+    root = new Node(ELEMENT(), root, root);
 }
 
 
 //destructor
 BST_threaded::~BST_threaded()
 {
-  //ADD CODE
+    delete root;
 }
 
+
+int BST_threaded::get_counter()
+{
+    return counter;
+}
 
 //Test if the tree is empty
 bool BST_threaded::empty() const
 {
-    //ADD CODE
-    return true;
+    if(root->l_thread)
+        return true;
+
+    return false;
 }
 
-//Return mumber of keys (elements) stored in the tree
+//Return number of keys (elements) stored in the tree
 int BST_threaded::size() const
 {
-   //ADD CODE
-    return 0;
+    return  counter;
 }
 
 
@@ -58,15 +64,35 @@ void BST_threaded::insert(ELEMENT v)
         root->l_thread = false;
         counter = 1;
     }
+
     else
         counter += root->left->insert(v); //call NODE::insert()
 }
 
-
 //Remove node with key from the tree
 void BST_threaded::remove(string key)
 {
-   //ADD CODE
+    //hitta nod och parent till denna.
+    bool is_right = false;
+    Node *node_parent;
+
+    if (root->left->value.first == key)
+        root->left->remove(key, root, is_right);
+
+    else
+    {
+        node_parent = root->left->find_parent(key, is_right);
+        if (node_parent) //om den hittas
+        {
+            if(is_right)
+                counter -= node_parent->right->remove(key, node_parent, is_right);
+
+            else
+                counter -= node_parent->left->remove(key, node_parent, is_right);
+        }
+        else
+            cout << "hittade inte noden!" << endl;
+    }
 }
 
 
@@ -77,28 +103,44 @@ void BST_threaded::remove(string key)
 //then an ELEMENT (key,0) is inserted and a reference to it is returned
 ELEMENT& BST_threaded::operator[](string key)
 {
-    //ADD CODE
-    static ELEMENT e("", 0); //MUST remove this code
+    BiIterator it = find(key);
 
-    return e; //MUST remove this code
+    if(it == end())
+    {
+        insert(ELEMENT(key, 0));
+        it = find(key);
+    }
+    return *it;
 }
 
 
 //Find the node in the BST storing key
 //Return a BiIterator referring to the node storing the key, if the key is found.
 //Otherwise, return this->end().
+
+//Stega ökande: lägsta till största
 BiIterator BST_threaded::find(string key) const
 {
-    //ADD CODE
-    return end();
+    Node *tmp;
+    if(!root->l_thread)
+    {
+        tmp = root->left->find(key);
+        if(tmp != nullptr)
+            return BiIterator(tmp);
+
+        else
+            return end();
+    }
+    else
+        return end();
 }
 
 
-//Return an iterator referring to the first node in the inorder traversal of the BST
+//Return an iterator referring to the first node in the inorder traversal(genomkorsande) of the BST
 BiIterator BST_threaded::begin() const
 {
-    //ADD CODE
-    return end();
+    Node *node = root->findMin();
+    return BiIterator(node);
 }
 
 

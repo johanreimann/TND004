@@ -14,7 +14,7 @@
 Node::Node(ELEMENT v, Node *l, Node *r)
  : value(v), left(l), right(r)
 {
-    l_thread = r_thread = false;
+    l_thread = r_thread = true; //ledig = true, pekar isch på root
 }
 
 
@@ -22,7 +22,11 @@ Node::Node(ELEMENT v, Node *l, Node *r)
 //recursively deletes the nodes in the left_subtree and right-subtree
 Node::~Node()
 {
-    //ADD CODE
+    if(!l_thread)
+        delete left;
+
+    if(!r_thread)
+        delete right;
 }
 
 
@@ -31,10 +35,106 @@ Node::~Node()
 //Otherwise, return false --v already exists in the tree
 bool Node::insert(ELEMENT v)
 {
-    //ADD CODE
+    Node *tmp = this;
+
+    if(tmp->value.first == v.first)
+    {
+        tmp->value.second++;
+        return false;
+    }
+
+    //Lägg till åt höger
+    else if(v.first > value.first && tmp->r_thread)
+    {
+        Node *newNode = new Node(v, tmp, tmp->right);
+        tmp->right = newNode;
+        tmp->r_thread = false;
+        return true;
+    }
+    //lägg till åt vänster
+    else if(v.first < value.first && tmp->l_thread)
+    {
+        Node *newNode = new Node(v, tmp->left, tmp);
+        tmp->left = newNode;
+        tmp->l_thread = false;
+        return true;
+    }
+
+    //Stega vidare i trädet åt höger
+    else if(v.first > value.first && !tmp->r_thread)
+    {
+        tmp = tmp->right;
+        return tree_insert(this, tmp, v);
+    }
+
+    //Stega vidare i trädet åt vänster
+    else if(v.first < value.first && !tmp->l_thread)
+    {
+        tmp = tmp->left;
+        return tree_insert(this, tmp, v);
+    }
     return false;
 }
 
+
+// tryck in i trädet!
+bool Node::tree_insert(Node* n, Node* tmp, ELEMENT v)
+{
+    bool ins = false;
+
+    do
+    {
+        if(tmp->value.first == v.first)
+        {
+            tmp->value.second++;
+            return false;
+        }
+        //om större och höger är ledig->lägg in till höger
+        else if(v.first > tmp->value.first && tmp->r_thread)
+        {
+            Node *newNode;
+
+            newNode = new Node(v, tmp, tmp->right);
+
+            tmp->right = newNode;
+            tmp->r_thread = false;
+            return true;
+        }
+
+        //gå åt höger
+        else if( v.first > tmp->value.first&& !tmp->r_thread)
+            tmp = tmp->right;
+
+        //gå åt vänster
+        else if( v.first < tmp->value.first&& !tmp->l_thread)
+            tmp = tmp->left;
+
+        //lägg in till höger
+        else if(v.first > tmp->value.first && tmp->r_thread)
+        {
+            Node *newNode;
+
+            //Om parent pekar på root
+            newNode = new Node(v, tmp, tmp->right);
+
+            tmp->right = newNode;
+            tmp->r_thread = false;
+            return true;
+        }
+
+        //Lägg till vänster
+        else if(v.first < tmp->value.first && tmp->l_thread)
+        {
+            Node* newNode;
+            //Om parent pekar på root
+            newNode = new Node(v, tmp->left, tmp);
+
+            tmp->left = newNode;
+            tmp->l_thread = false;
+            return true;
+        }
+    } while(!ins);
+}
 
 
 //Remove the key from the tree having as root this node
@@ -44,7 +144,24 @@ bool Node::insert(ELEMENT v)
 //isRight==true: this node is right child of parent
 bool Node::remove(string key, Node* parent, bool isRight)
 {
-    //ADD CODE
+    if (!l_thread && !r_thread)
+    {
+        Node* tmp = this;
+        value = tmp->right->findMin()->value;
+        if(!tmp->right->l_thread)
+        {
+            tmp = tmp->right;
+            while(!tmp->left->l_thread)
+                tmp = tmp->left;
+
+            tmp->left->removeMe(tmp, false);
+        }
+        else
+            tmp->right->removeMe(tmp, true);
+    }
+    else
+        removeMe(parent, isRight);
+
     return false;
 }
 
@@ -62,7 +179,49 @@ bool Node::remove(string key, Node* parent, bool isRight)
 //2c: a right child with no children
 void Node::removeMe(Node* parent, bool isRight)
 {
-   //ADD CODE
+    //1a; left child with only a right child
+    if (!isRight && l_thread && !r_thread)
+    {
+        parent->left = right;
+        right->findMin()->left = left;
+    }
+
+    //1b: a left child with only a left child
+    else if (!isRight && !l_thread && r_thread)
+    {
+        parent->left = left;
+        left->findMax()->right = right;
+    }
+
+    //1c: a left child with no children
+    else if (!isRight && l_thread && r_thread)
+    {
+        parent->left = left; //parent->left->left;
+        parent->l_thread = true;
+    }
+
+    //2a: a right child with only a right child
+    else if (isRight && l_thread && !r_thread)
+    {
+        parent->right = right;
+        right->findMin()->left = left;
+    }
+
+    //2b: a right child with only a left child
+    else if (isRight && !l_thread && r_thread)
+    {
+        parent->right = left;
+        left->findMax()->right = right;
+    }
+
+    //2c: a right child with no children
+    else
+    {
+        parent->right = right;
+        parent->r_thread = true;
+    }
+    this->l_thread = this->r_thread = true;
+    delete this;
 }
 
 
@@ -72,17 +231,55 @@ void Node::removeMe(Node* parent, bool isRight)
 //If there is no node storing key then return nullptr
 Node* Node::find(string key)
 {
-    //ADD CODE
+    if(value.first == key)
+        return this;
+
+    else if(key < value.first && !l_thread)
+        return left->find(key);
+
+    else if(key > value.first && !r_thread)
+        return right->find(key);
+
     return nullptr;
 }
 
+//return parent(node) of found key
+Node* Node::find_parent(string key, bool &is_right)
+{
+    if (key < value.first && !l_thread)
+    {
+        if (left->value.first == key)
+        {
+            is_right = false;
+            return this; //return parent
+        }
+        else
+            return left->find_parent(key, is_right);
+    }
 
-//Return a pointer to the node storing the smalest value
+    else if (key > value.first && !r_thread)
+    {
+        if (right->value.first == key)
+        {
+            is_right = true;
+            return this;
+        }
+        else
+            return right->find_parent(key, is_right);
+    }
+    return nullptr; //hittar ej
+}
+
+
+//Return a pointer to the node storing the smallest value
 //of the tree whose root is this node
 Node* Node::findMin()
 {
     //ADD CODE
-    return nullptr;
+    if(l_thread)
+        return this;
+
+    return left->findMin();
 }
 
 
@@ -91,9 +288,11 @@ Node* Node::findMin()
 Node* Node::findMax()
 {
     //ADD CODE
-    return nullptr;
-}
+    if(r_thread)
+        return this;
 
+    return right->findMax();
+}
 
 
 //Display in inorder all keys

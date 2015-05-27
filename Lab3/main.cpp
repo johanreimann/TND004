@@ -16,8 +16,30 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <iterator>
+
+#include <map>
+#include <sstream>
+#include <cctype>
+
 
 using namespace std;
+
+/*******************************
+* Functions                    *
+********************************/
+void display(MAP &table, int count)
+{
+    cout << "Number of words in the file = " << count << endl;
+    cout << "Number unique words in the file = " << table.get_counter() << endl << endl << endl;
+    cout << "Frequency table sorted alphabetically..." << endl << endl;
+    cout << "KEY	           COUNTER" << endl;
+    cout << "==================================" << endl;
+
+    BiIterator it = table.begin();
+    for(it; it != table.end(); it++)
+        cout << setw(22) << left << it->first << it->second << endl;
+}
 
 
 
@@ -30,7 +52,8 @@ int main()
 {
     MAP table;
 
-    string name;
+    string name, s;
+    int count = 0;
 
     /******************************************************
     * PHASE 0: Load the words in the text file            *
@@ -53,8 +76,8 @@ int main()
     //Read words and load them in the table
     while (textFile >> s)
     {
-        //remove non-alphanumeric chars
-        s.erase(remove_if(s.begin(), s.end(), isNotAlnum), s.end());
+        //remove non-alphanumeric chars: rensa bort allt utom siffra och bokstav
+        s.erase(remove_if(s.begin(), s.end(), ::ispunct), s.end());
 
         //convert to lower-case letters
         transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -62,7 +85,6 @@ int main()
         if (!s.size()) continue; //skip numbers and punctuation signs
 
         table[s].second++;  //if s is not in the table then it is inserted
-
         count++;
     }
 
@@ -74,7 +96,9 @@ int main()
     * - frequency table                                   *
     *******************************************************/
 
-    //ADD CODE
+    display(table, count);
+
+
 
 
     /******************************************************
@@ -83,20 +107,42 @@ int main()
     *******************************************************/
 
     string wait;
+    string words[count];
     getline(cin, wait);
+    int counter = 0;
 
-    //ADD CODE
+    BiIterator it = table.begin();
 
+    for(it; it !=table.end(); it++)
+    {
+        if(it->second == 1)
+        {
+            words[counter] = it->first;
+            counter++;
+        }
+    }
+    for (int i = 0; i < counter; i++)
+        table.remove(words[i]);
 
+    count -= counter;
+
+    display(table, count);
 
     /***********************************************************
     * PHASE 4: request two words to the user w1 and w2         *
     *          then display all words in the interval [w1,w2]  *
     ************************************************************/
 
-    //ADD CODE
+    string w1, w2;
+    cout << "Enter two words:" << endl;
+    cin >> w1 >> w2;
+    cout << endl << "Frequency table in [" << w1 << ", " << w2 << "]" << endl << endl;
 
+    BiIterator itBegin = table.find(w1);
+    BiIterator itEnd = ++table.find(w2);
 
+    for (itBegin; itBegin != itEnd; itBegin++)
+        cout << setw(22) << left << itBegin->first << itBegin->second << endl;
 
     return 0;
 }
