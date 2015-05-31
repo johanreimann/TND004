@@ -24,7 +24,7 @@ Digraph * readGraph(string fileName);
 
 int main()
 {
-    int choice = 0;
+    int choice = 0, c;
     string fileName;
     int s, t;
 
@@ -65,7 +65,8 @@ int main()
             case 6:
                 t = readInt("Target t    ? ");
                 cout << "\nShortest path =";
-                G->printPath(t);
+                c = 0;
+                G->printPath(t, c);
                 break;
             case 9:
                 cout << "Bye bye ..." << endl;
